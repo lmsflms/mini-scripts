@@ -6,7 +6,7 @@ bool segments_intersection(double x_a, double y_a, double x_b, double y_b, doubl
 {
     double a = 0, a2 = 0, b = 0, b2 = 0, c = 0, c2 = 0, Px = 0, Py = 0;
 
-    //ETAPE 0 : génerer les deux droites (AB) et (CD) à partir des points sous la forme ax + by + c = 0
+    //ETAPE 0 : gï¿½nerer les deux droites (AB) et (CD) ï¿½ partir des points sous la forme ax + by + c = 0
 
     if (x_a == x_b) { //Si x_a = x_b : la droite (AB) est verticale d'equation x = x_a
         a = 1; //coefficient de x
@@ -18,8 +18,7 @@ bool segments_intersection(double x_a, double y_a, double x_b, double y_b, doubl
         b = 1;
         c = -y_a;
     }
-    else {//Sinon la droite (AB) est oblique. On met b = 1 et on calcule a et c pour avoir l'équation ax + 1y + c = 0 (pour éviter les divisions par 0)
-
+    else {//Sinon la droite (AB) est oblique. On met b = 1 et on calcule a et c pour avoir l'ï¿½quation ax + 1y + c = 0 (pour ï¿½viter les divisions par 0)
         a = (y_b - y_a) / (x_a - x_b);
         b = 1;
         c = (y_a * x_b - y_b * x_a) / (x_a - x_b);
@@ -34,23 +33,23 @@ bool segments_intersection(double x_a, double y_a, double x_b, double y_b, doubl
         b2 = 1;
         c2 = -y_c;
     }
-    else {//Sinon la droite (CD) est oblique. On met b = 1 et on calcule a et c pour avoir l'équation ax + 1y + c = 0 (pour éviter les divisions par 0)
+    else {//Sinon la droite (CD) est oblique. On met b = 1 et on calcule a et c pour avoir l'ï¿½quation ax + 1y + c = 0 (pour ï¿½viter les divisions par 0)
         a2 = (y_d - y_c) / (x_c - x_d);
         b2 = 1;
         c2 = (y_c * x_d - y_d * x_c) / (x_c - x_d);
     }
 
-    // ETAPE 1 : déterminer si il y a intersection entre (AB) et (CD)
+    // ETAPE 1 : dï¿½terminer si il y a intersection entre (AB) et (CD)
 
-    double determinant = a * b2 - a2 * b; //pour déterminer s'il y a intersection il faut calculer le déterminant
+    double determinant = a * b2 - a2 * b; //pour dï¿½terminer s'il y a intersection il faut calculer le dï¿½terminant
 
     if (determinant != 0) { //les droites se croisent en un point d'intersection.
-        //Le point d'intersection (Px, Py) est calculé par :
+        //Le point d'intersection (Px, Py) est calculï¿½ par :
         Px = (b * c2 - b2 * c) / determinant;
         Py = (a2 * c - a * c2) / determinant;
     }
-    else { //les droites sont parallèles ou alignées
-        if ((a * b2 == a2 * b) && (a * c2 == a2 * c) && (b * c2 == b2 * c)) { //Verifier si les droites sont alignées. J'ai évité ((a / a2) == (b / b2) && (b / b2) == (c / c2)) pour ne pas avoir à faire des tests à cause de la division.
+    else { //les droites sont parallï¿½les ou alignï¿½es
+        if ((a * b2 == a2 * b) && (a * c2 == a2 * c) && (b * c2 == b2 * c)) { //Verifier si les droites sont alignï¿½es. J'ai ï¿½vitï¿½ ((a / a2) == (b / b2) && (b / b2) == (c / c2)) pour ne pas avoir ï¿½ faire des tests ï¿½ cause de la division.
             if ((x_a >= x_c && x_a <= x_d) || (x_b >= x_c && x_b <= x_d) || (x_c >= x_a && x_c <= x_b) || (x_d >= x_a && x_d <= x_b)) { //chevauchement X
                 if ((y_a >= y_c && y_a <= y_d) || (y_b >= y_c && y_b <= y_d) || (y_c >= y_a && y_c <= y_b) || (y_d >= y_a && y_d <= y_b)) { //chevauchement Y
                     return true; //Les segments [AB] et [CD] sont cofondus.
@@ -62,9 +61,9 @@ bool segments_intersection(double x_a, double y_a, double x_b, double y_b, doubl
         }
     }
 
-    // ETAPE 2 : Déterminer si le point d'intersection est situé entre les bornes des deux segments.
+    // ETAPE 2 : Dï¿½terminer si le point d'intersection est situï¿½ entre les bornes des deux segments.
 
-    if (((Px >= x_a && Px <= x_b) || (Px >= x_b && Px <= x_a)) //On vérifie que le point d'intersection (Px, Py) est bien sur les deux segments.
+    if (((Px >= x_a && Px <= x_b) || (Px >= x_b && Px <= x_a)) //On vï¿½rifie que le point d'intersection (Px, Py) est bien sur les deux segments.
         && ((Py >= y_a && Py <= y_b) || (Py >= y_b && Py <= y_a))
         && ((Px >= x_c && Px <= x_d) || (Px >= x_d && Px <= x_c))
         && ((Py >= y_c && Py <= y_d) || (Py >= y_d && Py <= y_c))) {
@@ -89,6 +88,6 @@ int main() {
     //Test 6 : segments alignes sans chevauchement : 0 (faux) 
     std::cout << "Segments alignes sans chevauchement : " << segments_intersection(0, 0, 2, 0, 3, 0, 5, 0) << "\n";
 
-    //Test 7 : segments parallèls : 0 (faux)
+    //Test 7 : segments parallï¿½ls : 0 (faux)
     std::cout << "Segments obliques paralleles : " << segments_intersection(0, 0, 3, 3, 0, 1, 3, 4) << "\n";
 }
