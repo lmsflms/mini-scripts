@@ -127,12 +127,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="coords.cpp" />
+    <ClCompile Include="objects.cpp" />
+    <ClCompile Include="projection.cpp" />
     <ClCompile Include="render.cpp" />
+    <ClCompile Include="shapes.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="coords.h" />
-    <ClInclude Include="cube.h" />
+    <ClInclude Include="objects.h" />
+    <ClInclude Include="projection.h" />
+    <ClInclude Include="shapes.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

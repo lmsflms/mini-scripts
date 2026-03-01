@@ -1,20 +1,6 @@
-#include "coords.h"
-#include "cube.h"
+#include "projection.h"
 #include <windows.h>
-
-Coord2D perspectiveProjection(const Coord3D& vertex, float d) {
-    return Coord2D( vertex.x * (d / vertex.z), vertex.y * (d / vertex.z) );
-}
-
-Cube2D projectCube3D(const Cube3D& cube3D, float d) {
-    Cube2D cube2D;
-
-    for (auto v : cube3D.vertices) {
-        cube2D.points.push_back(perspectiveProjection(v, d));
-    }
-
-    return cube2D;
-}
+#include <iostream>
 
 void render(std::vector<float> translation_vector) {
     {
@@ -22,7 +8,7 @@ void render(std::vector<float> translation_vector) {
 
         Cube3D c;
 
-        for (auto& v : c.vertices) {
+        for (auto& v : c.points) {
             v.applyVector(translation_vector);
         }
 
@@ -73,6 +59,7 @@ void render(std::vector<float> translation_vector) {
 
                 for (auto& p : c2D.points) {
                     if (round(p.x) == x && round(p.y) == y) {
+                    //if ((round(p.x) == x && round(p.y) == y) || isPointInPolygon(c2D.points[c2D.faces[0]], p) {
                         found = true;
                         break;
                     }
