@@ -11,6 +11,7 @@ using VecFaces = std::vector<std::vector<int>>; //ids
 
 struct Cube3D {
 	VecPoint3D points;
+	VecPoint3D originalPoints;
 
 	//Considering the points are listed in the following order:
 	//	1. Top front left
@@ -42,6 +43,8 @@ struct Cube3D {
 		{ -1, -1, -1 }
 		}
 	);
+
+	Point3D getCubeCenter();
 };
 
 struct Cube2D {
@@ -55,3 +58,4 @@ struct Cube2D {
 		{3,0,4,7} //left
 	};
 };
+

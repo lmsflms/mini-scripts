@@ -1,113 +1,165 @@
 #include "projection.h"
-#include <windows.h>
 #include <iostream>
+#include <Windows.h>
+#include <cmath>
 
-void render(std::vector<float> translation_vector) {
-    {
-        system("cls"); //clear screen
+VecPoint3D gCubePoints = {
+        { 20, 100, 100},
+        { 100, 100, 100 },
+        { 100, 100, 20 },
+        { 20, 100, 20 },
+        { 20, 20, 100 },
+        { 100, 20, 100 },
+        { 100, 20, 20 },
+        { 20, 20, 20 }
+};
+int θ = 0; //theta is the rotation angle
+Cube3D gCube = gCubePoints;
+Cube2D gCube2D;
 
-        Cube3D c;
+void applyRotationY(int θ) {
+    Point3D center = gCube.getCubeCenter();
 
-        for (auto& v : c.points) {
-            v.applyVector(translation_vector);
-        }
+    float rad_θ = θ * 3.1415926f / 180.0f;
 
-        Cube2D c2D = projectCube3D(c, 10);
+    for (int p = 0; p < gCube.points.size(); p++) {
+        float x = gCube.originalPoints[p].x - center.x;
+        float z = gCube.originalPoints[p].z - center.z;
 
-        //print points
-        for (auto& p : c2D.points) {
-            std::cout << "\x1b[33m(" << p.x << "," << p.y << ")" << "\n";
-        }
-
-        //find max x and y
-        float max_x = c2D.points[0].x;
-        float max_y = c2D.points[0].y;
-
-        for (auto& p : c2D.points) {
-            if (p.x > max_x) {
-                max_x = p.x;
-            }
-
-            if (p.y > max_y) {
-                max_y = p.y;
-            }
-        }
-
-        //find min x and y
-        float min_x = c2D.points[0].x;
-        float min_y = c2D.points[0].y;
-
-        for (auto& p : c2D.points) {
-            if (p.x < min_x) {
-                min_x = p.x;
-            }
-
-            if (p.y < min_y) {
-                min_y = p.y;
-            }
-        }
-
-        min_x -= 5;
-        min_y -= 5;
-        max_y += 5;
-        max_x += 5;
-
-        //print cube
-        for (int y = min_y; y <= max_y; y++) {
-            for (int x = min_x; x <= max_x; x++) {
-                bool found = false;
-
-                for (auto& p : c2D.points) {
-                    if (round(p.x) == x && round(p.y) == y) {
-                    //if ((round(p.x) == x && round(p.y) == y) || isPointInPolygon(c2D.points[c2D.faces[0]], p) {
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (found) {
-                    std::cout << "\x1b[31m#";
-                }
-                else {
-                    std::cout << "  ";
-                }
-            }
-            std::cout << "\n";
-        }
-
+        gCube.points[p].x = (x * cos(rad_θ) + z * sin(rad_θ)) + center.x;
+        gCube.points[p].z = (-x * sin(rad_θ) + z * cos(rad_θ)) + center.z;
     }
 }
 
-int main()
+LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    bool loop = true;
-
-    std::vector<float> translation_vector = { 0,0,0 };
-
-    render(translation_vector);
-
-    while (loop)
+    switch (message)
     {
-        if (GetAsyncKeyState(VK_SPACE) & 0x8000) {
-            loop = false;
+    case WM_KEYDOWN:
+        if (wParam == VK_RIGHT) {
+
+            θ += 1;
+            applyRotationY(θ);
+
+            InvalidateRect(hWnd, NULL, TRUE); //calls WM_PAINT
         }
-        if (GetAsyncKeyState(VK_LEFT) & 0x8000) {
-            translation_vector[0] += 0.01;
-            render(translation_vector);
+        if (wParam == VK_LEFT) {
+
+            θ -= 1;
+            applyRotationY(θ);
+
+            InvalidateRect(hWnd, NULL, TRUE);
         }
-        if (GetAsyncKeyState(VK_RIGHT) & 0x8000) {
-            translation_vector[0] -= 0.01;
-            render(translation_vector);
+        if (wParam == VK_UP) {
+            for (auto& p : gCube.points) {
+                p.y += 1;
+            }
+            InvalidateRect(hWnd, NULL, TRUE);
         }
-        if (GetAsyncKeyState(VK_UP) & 0x8000) {
-            translation_vector[1] += 0.01;
-            render(translation_vector);
+        if (wParam == VK_DOWN) {
+            for (auto& p : gCube.points) {
+                p.y -= 1;
+            }
+            InvalidateRect(hWnd, NULL, TRUE);
         }
-        if (GetAsyncKeyState(VK_DOWN) & 0x8000) {
-            translation_vector[1] -= 0.01;
-            render(translation_vector);
+        break;
+    case WM_PAINT:
+    {
+        PAINTSTRUCT ps;
+        HDC hdc = BeginPaint(hWnd, &ps);
+
+        //Brush : background color, Pen : outline color
+        HBRUSH hBrush = CreateSolidBrush(RGB(255, 255, 0));
+        HPEN hPen = CreatePen(PS_DASH, 3, RGB(255, 0, 0));
+
+        //Apply style
+        SelectObject(hdc, hBrush);
+        SelectObject(hdc, hPen);
+
+        //================ 
+
+        Cube2D gCube2D = projectCube3D(gCube, 20);
+
+        //for each 6 faces
+        for (int f = 0; f < 6; f++) {
+            const size_t nPoints = 4;
+            std::vector<POINT> faceCorners = {};
+
+            for (int i = 0; i < nPoints; i++) {
+                faceCorners.push_back(POINT((long)gCube2D.points[gCube2D.faces[f][i]].x, (long)gCube2D.points[gCube2D.faces[f][i]].y));
+            }
+            Polygon(hdc, faceCorners.data(), nPoints); //left, top, right, bottom
+
         }
+
+        EndPaint(hWnd, &ps);
+
+        DeleteObject(hBrush);
+        DeleteObject(hPen);
+    }
+    break;
+    case WM_DESTROY:
+        PostQuitMessage(0);
+        break;
+    default:
+        return DefWindowProc(hWnd, message, wParam, lParam);
+    }
+    return 0;
+}
+
+int WINAPI wWinMain(HINSTANCE hInstance,
+    HINSTANCE,
+    PWSTR,
+    int nCmdShow)
+{
+    //Register the window class.
+    const wchar_t RENDER_WINDOW[] = L"Render Window Class";
+
+    WNDCLASS wc = { };
+
+    //Pointer to window procedure function that manages messages
+    wc.lpfnWndProc = WindowProc;
+    wc.hInstance = hInstance;
+    wc.lpszClassName = RENDER_WINDOW;
+    wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+
+    RegisterClass(&wc);
+
+    //Create the window.
+
+    HWND hwnd = CreateWindowEx(
+        0,                              // Optional window styles.
+        RENDER_WINDOW,                  // Window class
+        L"Render",                      // Window text
+        WS_OVERLAPPEDWINDOW,            // Window style
+
+        // Size and position
+        CW_USEDEFAULT, CW_USEDEFAULT, 800, 800,
+
+        NULL,       // Parent window    
+        NULL,       // Menu
+        hInstance,  // Instance handle
+        NULL        // Additional application data
+    );
+
+    if (hwnd == NULL)
+    {
+        return 0;
     }
 
-    return 1;
+    // ==========================================
+
+    // ==========================================
+
+    ShowWindow(hwnd, nCmdShow);
+
+    MSG msg = {};
+
+    while (GetMessage(&msg, nullptr, 0, 0))
+    {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
+
+    return (int)msg.wParam;
 }
